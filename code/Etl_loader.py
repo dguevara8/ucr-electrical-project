@@ -106,8 +106,8 @@ def load_site_data(file_path, sheet_name):
         if 'ID' in df.columns:
             df.rename(columns={'ID': 'Site_id'}, inplace=True)
 
-        if not all(col in df.columns for col in ['Site_id', 'Latitud', 'Longitud']):
-            print("Error: Columnas requeridas (Site_id, Latitud, Longitud) no encontradas en archivo de sitios.")
+        if not all(col in df.columns for col in ['Site_id', 'Latitud', 'Longitud', 'Nombre']):
+            print("Error: Columnas requeridas (Site_id, Latitud, Longitud, Nombre) no encontradas.")
             return None
 
         return df

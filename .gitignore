@@ -1,0 +1,27 @@
+# Ignorar el ambiente virtual
+venv/
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales
+*.swp
+*.swo
+
+# Archivos de logs
+*.log
+
+# Archivos de configuración locales
+.env
+
+# Archivos de Jupyter
+.ipynb_checkpoints/
+
+# Cache de librerías
+*.egg-info/
+.eggs/
+dist/
+build/
