@@ -8,7 +8,7 @@ import numpy as np
 st.set_page_config(page_title="Dashboard KPI", layout="wide")
 
 # ==========================================================
-# UMBRALES DEL SEMaFORO
+# UMBRALES DEL SEMÁFORO
 # ==========================================================
 UMBRALES = {
     "Disponibilidad": {"verde": 99.0, "rojo": 90},
@@ -157,7 +157,7 @@ df_diario = kpi_diario(df_filtrado)
 # ==========================================================
 # TABS PRINCIPALES
 # ==========================================================
-tab1, tab_cluster, tab2 = st.tabs(["📊 Vista General", "🔍 Clusters", "📈 KPI Individual"])
+tab1, tab_cluster, tab2 = st.tabs(["📊 Vista General", "🗂 Clusters", "📈 KPI Individual"])
 
 # ==========================================================
 # VISTA GENERAL
@@ -219,11 +219,13 @@ with tab1:
             color_discrete_map=COLOR_MAP,
             category_orders=CATEGORY_ORDER,
             zoom=6,
-            height=550,
+            height=800,
             title=f"Mapa de {kpi_map.replace('_', ' ')}"
         )
-        fig_map.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0})
-        fig_map.update_traces(marker=dict(size=9, opacity=0.85))
+        fig_map.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0}, mapbox=dict(
+            center=dict(lat=9.9333, lon=-84.0833),
+            zoom=8.5))
+        fig_map.update_traces(marker=dict(size=20, opacity=0.85))
         st.plotly_chart(fig_map, use_container_width=True, key=f"single_map_{kpi_map}")
 
 # ==========================================================
@@ -273,14 +275,18 @@ with tab_cluster:
     kpi_cluster = ["Disponibilidad", "Accesibilidad", "Retenibilidad_Promedio"]
     k_sel = st.multiselect("Seleccione KPIs (para cálculos y listados):", kpi_cluster, default=kpi_cluster, key="kpi_sel_cluster")
 
-    df_plot = pd.melt(df_cluster, id_vars=["Date", "Cluster"], value_vars=k_sel, var_name="KPI", value_name="Valor")
-    fig = px.line(df_plot, x="Date", y="Valor", color="Cluster", line_dash="KPI", title="KPIs por Cluster")
-    st.plotly_chart(fig, use_container_width=True, key="chart_clusters_line")
-
-    st.subheader("Promedios por Cluster")
+    st.subheader("Gráficas y Promedios por Cluster")
+    
     for cname in cluster_sel:
         st.markdown(f"### {cname}")
+        
+        # Gráfica para este cluster específico
         df_temp = df_cluster[df_cluster["Cluster"] == cname]
+        df_plot_cluster = pd.melt(df_temp, id_vars=["Date", "Cluster"], value_vars=k_sel, var_name="KPI", value_name="Valor")
+        fig_cluster = px.line(df_plot_cluster, x="Date", y="Valor", color="KPI", title=f"KPIs en {cname}")
+        st.plotly_chart(fig_cluster, use_container_width=True, key=f"chart_cluster_{cname.replace(' ', '_')}")
+        
+        # Promedios para este cluster
         for k in k_sel:
             st.markdown(f"<b>{k.replace('_',' ')}:</b> {df_temp[k].mean():.2f}%", unsafe_allow_html=True)
         st.markdown("---")
@@ -343,11 +349,13 @@ with tab_cluster:
             color_discrete_map=COLOR_MAP,
             category_orders=CATEGORY_ORDER,
             zoom=7,
-            height=420,
+            height=800,
             title=f"Mapa de {kpi_for_cluster.replace('_', ' ')} en {cname}"
         )
-        fig_cluster_map.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0})
-        fig_cluster_map.update_traces(marker=dict(size=8, opacity=0.9))
+        fig_cluster_map.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0}, mapbox=dict(
+            center=dict(lat=9.9333, lon=-84.0833),
+            zoom=8.5))
+        fig_cluster_map.update_traces(marker=dict(size=20, opacity=0.9))
         st.plotly_chart(fig_cluster_map, use_container_width=True, key=f"cluster_single_map_{cname_key}")
 
 # ==========================================================
@@ -386,9 +394,11 @@ with tab2:
                                  hover_data={kpi_col: ":.2f", "Site Id": True}, 
                                  color_discrete_map=COLOR_MAP,
                                  category_orders=CATEGORY_ORDER,
-                                 zoom=6, height=450, title="Mapa de Disponibilidad (Período Total)")
-        fig.update_layout(mapbox_style="open-street-map")
-        fig.update_traces(marker=dict(size=7, opacity=0.85))
+                                 zoom=6, height=800, title="Mapa de Disponibilidad (Período Total)")
+        fig.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0}, mapbox=dict(
+            center=dict(lat=9.9333, lon=-84.0833),
+            zoom=8.5))
+        fig.update_traces(marker=dict(size=20, opacity=0.85))
         st.plotly_chart(fig, use_container_width=True, key="indiv_disponibilidad_map")
 
     # ACCESIBILIDAD
@@ -416,9 +426,11 @@ with tab2:
                                  hover_data={kpi_col: ":.2f", "Site Id": True},
                                  color_discrete_map=COLOR_MAP,
                                  category_orders=CATEGORY_ORDER,
-                                 zoom=6, height=450, title="Mapa de Accesibilidad (Período Total)")
-        fig.update_layout(mapbox_style="open-street-map")
-        fig.update_traces(marker=dict(size=7, opacity=0.85))
+                                 zoom=6, height=800, title="Mapa de Accesibilidad (Período Total)")
+        fig.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0}, mapbox=dict(
+            center=dict(lat=9.9333, lon=-84.0833),
+            zoom=8.5))
+        fig.update_traces(marker=dict(size=20, opacity=0.85))
         st.plotly_chart(fig, use_container_width=True, key="indiv_accesibilidad_map")
 
     # RETENIBILIDAD
@@ -454,12 +466,14 @@ with tab2:
                                      hover_data={kpi_col: ":.2f", "Site Id": True},
                                      color_discrete_map=COLOR_MAP,
                                      category_orders=CATEGORY_ORDER,
-                                     zoom=6, height=450, title="Mapa de Retenibilidad Técnica (Período Total)")
-            fig.update_layout(mapbox_style="open-street-map")
-            fig.update_traces(marker=dict(size=7, opacity=0.85))
+                                     zoom=6, height=800, title="Mapa de Retenibilidad Técnica (Período Total)")
+            fig.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0}, mapbox=dict(
+                center=dict(lat=9.9333, lon=-84.0833),
+                zoom=8.5))
+            fig.update_traces(marker=dict(size=20, opacity=0.85))
             st.plotly_chart(fig, use_container_width=True, key="indiv_ret_tec_map")
 
-        # Retenibilidad Usuario
+       # Retenibilidad Usuario
         with tabs[1]:
             kpi_col = "Retenibilidad_Usuario"
 
@@ -487,9 +501,11 @@ with tab2:
                                      hover_data={kpi_col: ":.2f", "Site Id": True},
                                      color_discrete_map=COLOR_MAP,
                                      category_orders=CATEGORY_ORDER,
-                                     zoom=6, height=450, title="Mapa de Retenibilidad Usuario (Período Total)")
-            fig.update_layout(mapbox_style="open-street-map")
-            fig.update_traces(marker=dict(size=7, opacity=0.85))
+                                     zoom=6, height=800, title="Mapa de Retenibilidad Usuario (Período Total)")
+            fig.update_layout(mapbox_style="open-street-map", margin={"r":0,"t":30,"l":0,"b":0}, mapbox=dict(
+                center=dict(lat=9.9333, lon=-84.0833),
+                zoom=8.5))
+            fig.update_traces(marker=dict(size=20, opacity=0.85))
             st.plotly_chart(fig, use_container_width=True, key="indiv_ret_usr_map")
 
 st.markdown("---")
